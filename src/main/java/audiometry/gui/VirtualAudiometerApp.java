@@ -180,7 +180,21 @@ public class VirtualAudiometerApp extends JFrame {
         
         // Serial porta komut gönder
         serialManager.sendCommand(String.format("PLAY,%d,%d", currentState.frequencyHz, currentState.intensityDb));
-        
+        try {
+    String udpCmd = String.format("PLAY,%d,%d", currentState.frequencyHz, currentState.intensityDb);
+    java.net.DatagramSocket udpSocket = new java.net.DatagramSocket();
+    java.net.DatagramPacket udpPacket = new java.net.DatagramPacket(
+        udpCmd.getBytes(), 
+        udpCmd.getBytes().length, 
+        java.net.InetAddress.getByName("127.0.0.1"), 
+        25000
+    );
+    udpSocket.send(udpPacket);
+    udpSocket.close();
+    System.out.println("--> Simulink'e UDP Basariyla Gonderildi: " + udpCmd);
+} catch (Exception e) {
+    System.out.println("UDP Hatasi: " + e.getMessage());
+}
         // Gerçek sesi asenkron (arka planda) olarak 1000ms boyunca çal
         playSoundAsync(currentState.frequencyHz, currentState.intensityDb, 1000);
     }
